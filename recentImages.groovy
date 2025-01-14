@@ -32,12 +32,20 @@ try {
     if(images) {
         // Iterate over each image
         images.each { image ->
-            def tags = image?.repositories?.tags?.name  // List of tag names
-            def publishedDate = image?.repositories?.published_date ?: "N/A"
             def vcsRef = image?.parsed_data?.labels.find { it.name == "vcs-ref"}?.value ?: "N/A"
             def freshnessGrade = image?.freshness_grades?.grade?.getAt(0) ?: "N/A"
+            // Iterate over each repository
+            image.repositories.each { repository ->
+                def publishedDate = repository.published_date ?: "N/A"
+                def tags = repository.tags*.name  // Extract all tag names using spread operator
 
-            println(tags + publishedDate + vcsRef + freshnessGrade)
+                tags.each { tag ->
+                    println vcsRef
+                    println freshnessGrade
+                    println publishedDate
+                    println tag
+                }
+            }
         }
     } else {
         println "No images found"
