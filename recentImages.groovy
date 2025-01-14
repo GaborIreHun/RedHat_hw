@@ -30,6 +30,8 @@ try {
     def images = parsedResponseText?.data
 
     if(images) {
+        // Map to store the most recent image per tag
+        def imagesByTag = [:]
         // Iterate over each image
         images.each { image ->
             def vcsRef = image?.parsed_data?.labels.find { it.name == "vcs-ref"}?.value ?: "N/A"
@@ -40,13 +42,18 @@ try {
                 def tags = repository.tags*.name  // Extract all tag names using spread operator
 
                 tags.each { tag ->
-                    println vcsRef
-                    println freshnessGrade
-                    println publishedDate
-                    println tag
+                    if (!imagesByTag.containsKey(tag)) {
+                        imagesByTag[tag] = [
+                            contentStream  : tag,
+                            vcsRef         : vcsRef,
+                            publishedDate  : publishedDate,
+                            freshnessGrade : freshnessGrade
+                        ]
+                    }
                 }
             }
         }
+        println imagesByTag
     } else {
         println "No images found"
     }
