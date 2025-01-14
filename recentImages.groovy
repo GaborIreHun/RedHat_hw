@@ -11,6 +11,7 @@
  * }
 **/
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 // Endpoint from swagger https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo (descending order by published date so most recent is first)
 def request = "https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/rhbk%2Fkeycloak-rhel9/images?include=data.freshness_grades.grade&include=data.parsed_data.labels&include=data.repositories.published_date&include=data.repositories.tags.name&page_size=5&page=0&sort_by=repositories.published_date%5Bdesc%5D"
@@ -54,6 +55,17 @@ try {
             }
         }
         println imagesByTag
+
+        // Convert the map to a list for JSON output
+        def finalReport = imagesByTag.values().toList()
+
+        println finalReport
+
+        // Output the report as pretty-printed JSON
+        def jsonReport = JsonOutput.prettyPrint(JsonOutput.toJson(finalReport))
+
+        println jsonReport
+
     } else {
         println "No images found"
     }
