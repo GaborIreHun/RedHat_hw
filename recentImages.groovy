@@ -14,18 +14,14 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
 // Endpoint from swagger https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo (descending order by published date so most recent is first)
-def request = "https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/rhbk%2Fkeycloak-rhel9/images?include=data.freshness_grades.grade&include=data.parsed_data.labels&include=data.repositories.published_date&include=data.repositories.tags.name&page_size=5&page=0&sort_by=repositories.published_date%5Bdesc%5D"
+def request = "https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/rhbk%2Fkeycloak-rhel9/images?include=data.freshness_grades.grade&include=data.parsed_data.labels&include=data.repositories.published_date&include=data.repositories.tags.name&page_size=100&page=0&sort_by=repositories.published_date%5Bdesc%5D"
 
 try {
     // Fetching the JSON response
     def responseText = new URL(request).text
 
-    println responseText
-
     // Parsing respone
     def parsedResponseText = new JsonSlurper().parseText(responseText)
-
-    println parsedResponseText
 
     // Extract the list of images (utilizing safe navigator to prevent exception)
     def images = parsedResponseText?.data
@@ -54,17 +50,18 @@ try {
                 }
             }
         }
-        println imagesByTag
 
         // Convert the map to a list for JSON output
         def finalReport = imagesByTag.values().toList()
-
-        println finalReport
 
         // Output the report as pretty-printed JSON
         def jsonReport = JsonOutput.prettyPrint(JsonOutput.toJson(finalReport))
 
         println jsonReport
+
+        // Creating JSON file and writing context
+        def outputFile = new File("keycloak_images_report.json")
+        outputFile.text = jsonReport
 
     } else {
         println "No images found"
