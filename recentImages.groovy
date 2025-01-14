@@ -10,15 +10,21 @@
  *     "freshnessGrade": "A"
  * }
 **/
+import groovy.json.JsonSlurper
 
 // Endpoint from swagger https://catalog.redhat.com/api/containers/v1/ui/#/Repositories/graphql.images.get_images_by_repo
-def request = "https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/rhbk%2Fkeycloak-rhel9/images?include=data.freshness_grades.grade&include=data.parsed_data.labels&include=data.repositories.published_date&include=data.repositories.tags.name&page_size=1&page=0"
+def request = "https://catalog.redhat.com/api/containers/v1/repositories/registry/registry.access.redhat.com/repository/rhbk%2Fkeycloak-rhel9/images?include=data.freshness_grades.grade&include=data.parsed_data.labels&include=data.repositories.published_date&include=data.repositories.tags.name&page_size=3&page=0"
 
 try {
     // Fetching the JSON response
     def responseText = new URL(request).text
 
     println responseText
+
+    // Parsing respone
+    def parsedResponseText = new JsonSlurper().parseText(responseText)
+
+    println parsedResponseText
 
 } catch (Exception e) {
     println "Error fetching data: ${e.message}"
